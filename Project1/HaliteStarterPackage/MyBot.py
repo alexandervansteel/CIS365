@@ -43,7 +43,10 @@ def get_move(square):
         return Move(square, find_nearest_enemy_direction(square))
     else:
         #wait until we are strong enough to attack
-        return Move(square, STILL)
+        if neighbor.owner == myID and sum(neighbor.strength for neighbor in game_map.neighbors(square) + square.strength) < 250
+            return Move(square, direction)
+        else: 
+            return Move(square, STILL)
 
 
 while True:
