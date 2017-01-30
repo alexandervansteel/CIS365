@@ -21,9 +21,26 @@ def find_nearest_enemy_direction(square):
             max_distance = distance
     return direction
 
+def find_high_production(square):
+    direction = NORTH
+    production = square.production
+    max_distance = min(game_map.width, game_map.height) / 2
+    for d in (NORTH, EAST, SOUTH, WEST):
+        distance = 0
+        current = square
+        while current.production < (square.production * 1.5) and distance < max_distance:
+            distance += 1
+            current = game_map.get_target(current, d)
+            if distance < max_distance:
+                direction = d
+                max_distance = d
+    return direction
+
 def heuristic(square):
     if square.owner == 0 and square.strength > 0:
         return square.production / square.strength
+    if square.owner == myID and square.strength > 150:
+        return 0
     else:
         # return total potential damage caused by overkill when attacking this square
         return sum(neighbor.strength for neighbor in game_map.neighbors(square) if neighbor.owner not in (0, myID))
@@ -40,14 +57,13 @@ def get_move(square):
 
     border = any(neighbor.owner != myID for neighbor in game_map.neighbors(square))
     if not border:
-        return Move(square, find_nearest_enemy_direction(square))
+        if square.strength < 50:
+            return Move(square, find_high_production(square))
+        else:
+            return Move(square, find_nearest_enemy_direction(square))
     else:
         #wait until we are strong enough to attack
-        if neighbor.owner == myID and sum(neighbor.strength for neighbor in game_map.neighbors(square) + square.strength) < 250
-            return Move(square, direction)
-        else: 
-            return Move(square, STILL)
-
+        return Move(square,STILL)
 
 while True:
     game_map.get_frame()
