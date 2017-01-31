@@ -36,6 +36,19 @@ def find_high_production(square):
                 max_distance = d
     return direction
 
+def average_production(square):
+    direction = NORTH
+    square_count = 1
+    total_production = square.production
+    max_distance = 8
+    for d in (NORTH, EAST, SOUTH, WEST):
+        distance = 0
+        current = square
+        while distance < max_distance:
+            total_production += current.production
+            square_count += 1
+    return total_production / square_count
+
 def heuristic(square):
     if square.owner == 0 and square.strength > 0:
         return square.production / square.strength
@@ -57,7 +70,7 @@ def get_move(square):
 
     border = any(neighbor.owner != myID for neighbor in game_map.neighbors(square))
     if not border:
-        if square.strength < 50:
+        if square.production < average_production(square) and square.strength > square.production * 5:
             return Move(square, find_high_production(square))
         else:
             return Move(square, find_nearest_enemy_direction(square))
