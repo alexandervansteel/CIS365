@@ -73,22 +73,21 @@ tfidf = TfidfVectorizer(strip_accents='unicode',
                         stop_words = stop,       # add stop words
                         preprocessor=None)
 
-# Hint: There are methods to perform parameter sweeps to find the
-# best combination of parameters.  Look towards GridSearchCV in
-# sklearn or other model selection strategies.
-
 # Create a pipeline to vectorize the data and then perform regression.
 # Hint: Are there other options to add to this process?
 # Look to documentation on Regression or similar methods for hints.
 # Possibly investigate alternative classifiers for text/sentiment.
 lr_tfidf = Pipeline([('vect', tfidf), ('clf', LogisticRegression())])
 
+# Hint: There are methods to perform parameter sweeps to find the
+# best combination of parameters.  Look towards GridSearchCV in
+# sklearn or other model selection strategies.
 param_grid = [{
-                'vect__stop_words': [None],
-                'vect__strip_accents': [None, 'ascii'],
+                'vect__stop_words': [None],              # stop_words taken care of in TfidfVectorizer
+                'vect__strip_accents': [None, 'ascii'],  # catch any accents missed by TfidfVectorizer
                 'vect__lowercase': [False],
                 'vect__preprocessor': [None],
-                'vect__tokenizer': [None],
+                'vect__tokenizer': [None],               # tokenizer taken care of in TfidfVectorizer
                 'clf__penalty': ['l1', 'l2'],
                 'clf__C': [1.0, 10.0, 100.0]
              }]
@@ -96,9 +95,9 @@ param_grid = [{
 gs_lr_tfidf = GridSearchCV(lr_tfidf,
                            param_grid,
                            scoring='accuracy',
-                           cv=5,
-                           verbose=5,
-                           n_jobs=1)
+                           cv=5,                         # K-Fold k=5
+                           verbose=5,                    # some messages to know it's running
+                           n_jobs=-1)                    # runs computations in parallel
 
 # Train the pipline using the training set.
 gs_lr_tfidf.fit(X_train, y_train)
